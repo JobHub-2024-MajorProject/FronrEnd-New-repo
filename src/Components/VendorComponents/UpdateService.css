@@ -70,3 +70,22 @@ text-align:center;
   background: white;
   color: black;
 }
+
+.UpdateService-toggle {
+  width: 80px;
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.UpdateService-toggle.active {
+  background-color: green;
+  color: white;
+}
+
+.UpdateService-toggle.inactive {
+  background-color: red;
+  color: white;
+}
