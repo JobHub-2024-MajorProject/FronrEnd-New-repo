@@ -1,47 +1,58 @@
-import React from "react";
-import './Search.css';
+import React, { useState } from "react";
+import "./Search.css";
 
-const SearchBar = () => {
+const SearchBar = ({setJobData, setFetchedData}) => {
+  const [selectedLocation, setSelectedLocation] = useState("");
+
+  const locations = ["Chennai", "Mumbai", "Bangalore", "Vizag"];
+
+  const handleSearch = () => {
+    if (!selectedLocation) {
+      alert("Please select a location.");
+      return;
+    }
+
+    fetch(`http://localhost:8086/userpage/search?location=${selectedLocation}`) // Replace with your actual API
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Search results:", data);
+
+      // Update state with API response data
+      setJobData(data.jobs || []);         // Update jobs state
+      setFetchedData(data.services || []); // Update services state
+    })
+    .catch((error) => console.error("Error fetching data:", error));
+  };
+
   return (
     <div className="width-100 Search-banner-section">
       <div className="Search-container">
-        <h1 className="Search-banner-heading">
-          Find The Best Job For Your Future
-        </h1>
+        <h1 className="Search-banner-heading">Find The Best Job For Your Future</h1>
         <p className="Search-banner-para">
-          It's a long established fact that a reader will be distracted by the
-          readable
+          It's a long established fact that a reader will be distracted by the readable
         </p>
         <div className="Search-bar-Container">
           <div className="search-sect">
-            <input
-              type="text"
+            <select
               className="search-textbox"
-              placeholder="Select Location"
-            />
-            <i
-              className="fa fa-life-ring absolute top-4 right-4 text-gray-600"
-              aria-hidden="true"
-            ></i>
-         </div>
-          <div className="search-sect">
-            <input
-              type="text"
-              className="search-textbox"
-              placeholder="All categories"
-            />
-            <i
-              className="fa fa-caret-down absolute top-4 right-4 text-gray-600"
-              aria-hidden="true"
-            ></i>
+              value={selectedLocation}
+              onChange={(e) => setSelectedLocation(e.target.value)}
+            >
+              <option value="">Select Location</option>
+              {locations.map((location, index) => (
+                <option key={index} value={location}>
+                  {location}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="search-sect">
-            <button className="search-button">
+            <button className="search-button" onClick={handleSearch}>
               <i className="fa fa-search mr-2" aria-hidden="true"></i> Search Here
             </button>
-           </div>
           </div>
         </div>
+      </div>
     </div>
   );
 };

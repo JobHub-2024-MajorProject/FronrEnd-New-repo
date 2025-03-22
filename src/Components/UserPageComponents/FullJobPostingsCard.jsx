@@ -4,7 +4,7 @@ import axios from "axios";
 import "./FullJobPostingsCard.css";
 
 const FullJobPostingsCard = ({ 
-  jobId, jobTitle, company, rating = 0, experience, salary, jobType, 
+  jobId,jobImage, jobTitle, company, rating = 0, experience, salary, jobType, 
   location, postedDate, vacancies, overview, description = [], 
   skills = [], accommodations = [], userId // ✅ Added userId as a prop
 }) => {
@@ -82,7 +82,7 @@ const FullJobPostingsCard = ({
         </div>
         <div className="Full-Job-banner-image">
           <img
-            src="https://comicyears.com/wp-content/uploads/2022/04/Solo-Leveling-118-1024x570-1.jpg"
+            src={jobImage}
             alt="Job Posting Banner"
           />
         </div>

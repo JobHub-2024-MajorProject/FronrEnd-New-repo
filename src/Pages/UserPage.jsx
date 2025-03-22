@@ -16,7 +16,8 @@ const UserPage = () => {
   const [activeSection, setActiveSection] = useState('jobs'); // Default section: Jobs
   const [menuOpen, setMenuOpen] = useState(false); //Header animation and pop-up script
   const [showPasswordModal, setShowPasswordModal] = useState(false); // State for modal
-
+  const [fetchedData, setFetchedData] = useState([]);
+  const [jobData, setJobData] = useState([]); // ✅ Initialize with an empty array
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!event.target.closest(".UserHeader-profile-menu")) {
@@ -104,9 +105,9 @@ const UserPage = () => {
             </ul>
           </nav>
         </header>
-
-        <SearchBar />
         <FakeJobsBanner />
+        <SearchBar setJobData={setJobData} setFetchedData={setFetchedData}/>
+        
 
         <section id="Job-Categories">
           <div className="Category-container">
@@ -126,10 +127,10 @@ const UserPage = () => {
 
           <div className="Category-layout-container">
             <div className="Category-filters-container">
-              {activeSection === 'jobs' ? <JobFilters /> : <ServiceFilters />}
+              {activeSection === 'jobs' ? <JobFilters setJobData={setJobData}/> : <ServiceFilters setFetchedData={setFetchedData} />}
             </div>
             <div className="Category-postings-container">
-              {activeSection === 'jobs' ? <JobPostings /> : <ServicePostings />}
+              {activeSection === 'jobs' ? <JobPostings jobData={jobData} setJobData={setJobData} /> : <ServicePostings fetchedData={fetchedData} setFetchedData={setFetchedData}/>}
             </div>
           </div>
         </section>

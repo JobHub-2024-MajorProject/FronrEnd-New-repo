@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import "./Login.css";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useCallback } from "react";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [page, setPage] = useState("main");
   const [forgotPassword, setForgotPassword] = useState(false);
@@ -9,7 +14,69 @@ const Login = () => {
   const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
+  const navigate = useNavigate();
+  const [popup, setPopup] = useState({ show: false, message: "" });
+  const [formData, setFormData] = useState({
+    usernameOrEmail: "",
+    password: "",
+  });
+  const [role, setRole] = useState("");
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  const handleGoogleLogin = () => {
+    
+    // Redirect to Google OAuth2 login endpoint for Google login
+    window.location.href = 'http://localhost:8086/oauth2/authorization/google';
+  };
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+  console.log("hello");
+      try {
+        const loginEndpoint =
+          role === "recruiter"
+            ? "http://localhost:8086/recruiter/login"
+            : "http://localhost:8086/login"; // Different endpoints
+  
+        const response = await axios.post(
+          loginEndpoint,
+          {
+            identifier: formData.usernameOrEmail,
+            password: formData.password,
+          },
+          { withCredentials: true }
+        );
+  
+        if (response.status === 200) {
+          console.log("hi");
+          setPopup({ show: true, message: "Login Successful!" });
+  
+          const userId = response.data.id;
+          console.log(userId);
+  
+          navigate(role === "recruiter" ? "/VendorPage" : "/userpage", {
+            state: { loginSuccess: true },
+          });
+        }
+      } catch (error) {
+        console.log("error"+error);
+        toast.error("Invalid Credentials", { autoClose: 2000 });
+      }
+    },
+    [formData, navigate, role] // Include role in dependencies
+  );
 
+  const location = useLocation();
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    if (queryParams.get("error") === "user_not_found") {
+      toast.error("User does not exist! Please sign up.", { autoClose: 2000 });
+    }
+  }, [location]);
+
+
+  
   useEffect(() => {
     if (otpSent && timer > 0) {
       const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
@@ -22,7 +89,8 @@ const Login = () => {
   const showLogin = (selectedPage) => {
     setPage(selectedPage);
     setForgotPassword(false);
-    history.pushState({ page: selectedPage }, "", `#${selectedPage}`);
+    history.pushState({ page: selectedPage }, "",`#${selectedPage}`);
+    setRole(selectedPage === "login-recruiter" ? "recruiter" : "applicant");
   };
 
   const handleForgetPassword = () => {
@@ -75,6 +143,7 @@ const Login = () => {
 
   const renderForgotPassword = () => (
     <div className="Login-Forgot-password-container">
+
       {!otpSent ? (
         <>
           <h2>Verify Mobile Number</h2>
@@ -117,6 +186,17 @@ const Login = () => {
 
   return (
     <div className="Login-container">
+       <ToastContainer 
+              position="top-center" 
+              autoClose={2000} 
+              hideProgressBar={false} 
+              newestOnTop={false} 
+              closeOnClick 
+              rtl={false} 
+              pauseOnFocusLoss 
+              draggable 
+              pauseOnHover 
+            />
       <div className="Login-logo">
         <img src="\JobHub Logo.png" alt="Company Logo" />
       </div>
@@ -155,17 +235,23 @@ const Login = () => {
           {!forgotPassword ? (
             <div className="Login-right-half">
               <h2>{page === "login-recruiter" ? "Recruiter Login" : "Applicant Login"}</h2>
-              <form>
+              <form onSubmit={handleSubmit}>
                 <input
                   className="Login-login-input"
                   type="text"
                   placeholder="Username or Email"
+                  name="usernameOrEmail"
+                  value={formData.usernameOrEmail}
+                  onChange={handleChange}
                   required
                 />
                 <input
                   className="Login-login-input"
                   type="password"
                   placeholder="Password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   required
                 />
                 <p onClick={handleForgetPassword} className="Login-Forgot-password-text">
@@ -178,7 +264,7 @@ const Login = () => {
                   <span>OR</span>
                 </div>
               </form>
-              <button className="Login-google-login">Sign in with Google</button>
+              <button className="Login-google-login" onClick={handleGoogleLogin}>Sign in with Google</button>
               <div className="Login-login-footer">
                 Don't have an account? <a href="/Register">Sign up</a>
               </div>

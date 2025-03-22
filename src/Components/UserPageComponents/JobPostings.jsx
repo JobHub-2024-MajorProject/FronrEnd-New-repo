@@ -4,9 +4,9 @@ import JobCard from "./JobCard";
 import FullJobPostingsCard from "./FullJobPostingsCard";
 import "./JobPostings.css";
 
-const JobPostings = () => {
+const JobPostings = ({jobData, setJobData}) => {
   const [selectedJob, setSelectedJob] = useState(null);
-  const [jobData, setJobData] = useState([]); // ✅ Initialize with an empty array
+  
   const [apiUrl, setApiUrl] = useState("http://localhost:8086/userpage/jobs");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

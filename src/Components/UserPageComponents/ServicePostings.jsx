@@ -3,9 +3,9 @@ import ServiceCard from "./ServiceCard";
 import "./ServicePostings.css";
 import axios from "axios";
 
-const ServicePostings = () => {
+const ServicePostings = ({fetchedData, setFetchedData}) => {
   const [apiUrl, setApiUrl] = useState("http://localhost:8086/userpage/services"); // Default URL
-  const [fetchedData, setFetchedData] = useState([]);
+  
 
   useEffect(() => {
     const getData = async () => {
