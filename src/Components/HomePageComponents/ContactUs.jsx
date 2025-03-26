@@ -6,54 +6,42 @@ const ContactUs = () => {
   const [email, setEmail] = useState("");
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
+    if (loading) return;
+    
+    setLoading(true);
+    setMessage(""); 
 
     const templateParams = {
-      from_email: email,
-      message: description,
+      from_email: email || "N/A",
+      description: description || "No message provided",
+      username: email || "Anonymous User", // Ensure username exists
+      reportType: "N/A", // Prevent missing variables
+      company: "N/A",
+      issue: "N/A",
+      is_admin: "false", // String format for EmailJS
     };
 
-    // 1️⃣ Send the contact form message to the admin
     emailjs
-      .send(
-        "service_pejj7lc", // Your EmailJS Service ID
-        "template_jp62zjs", // Your EmailJS Template ID (Admin Notification)
-        templateParams,
-        "sVCbEROQoeMSJ_z-U" // Your EmailJS Public Key
+      .send("service_pejj7lc", "template_jp62zjs", templateParams, "sVCbEROQoeMSJ_z-U")
+      .then(
+        () => {
+          return emailjs.send("service_pejj7lc", "template_pnh4vtn", templateParams, "sVCbEROQoeMSJ_z-U");
+        }
       )
       .then(
-        (response) => {
-          console.log("SUCCESS! Message sent to admin:", response.status, response.text);
-          
-          // 2️⃣ After admin email is sent, send the auto-reply to the user
-          emailjs
-            .send(
-              "service_pejj7lc", // Your EmailJS Service ID (Same as above)
-              "template_pnh4vtn", // Your Auto-Reply EmailJS Template ID
-              templateParams, // Send the same user email & message
-              "sVCbEROQoeMSJ_z-U" // Your EmailJS Public Key
-            )
-            .then(
-              (autoReplyResponse) => {
-                console.log("SUCCESS! Auto-reply sent:", autoReplyResponse.status, autoReplyResponse.text);
-                setMessage("Message sent successfully! Check your email for confirmation.");
-              },
-              (autoReplyError) => {
-                console.log("FAILED... Auto-reply error:", autoReplyError);
-                setMessage("Message sent, but auto-reply failed.");
-              }
-            );
-        },
-        (error) => {
-          console.log("FAILED... Error sending to admin:", error);
-          setMessage("Failed to send message. Try again.");
-        }
-      );
-
-    setEmail("");
-    setDescription("");
+        () => setMessage("Message sent successfully! Check your email."),
+        () => setMessage("Message sent, but auto-reply failed.")
+      )
+      .catch(() => setMessage("Failed to send message. Try again."))
+      .finally(() => {
+        setLoading(false);
+        setEmail("");
+        setDescription("");
+      });
   };
 
   return (
@@ -73,6 +61,7 @@ const ContactUs = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={loading} // Disable input while sending
           />
           <label htmlFor="description">Description</label>
           <textarea
@@ -83,8 +72,11 @@ const ContactUs = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
+            disabled={loading} // Disable textarea while sending
           ></textarea>
-          <button type="submit">Send Message</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Sending..." : "Send Message"} {/* Show loading text */}
+          </button>
         </form>
         {message && <p className="status-message">{message}</p>}
       </div>
