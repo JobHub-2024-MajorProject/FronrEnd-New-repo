@@ -1,20 +1,59 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import axios from "axios"; // Import axios for API calls
 import "./VendorReport.css";
 
-const VendorReport = ({ totalJobs, totalServices, hiredCandidates, totalApplications, jobListings }) => {
-  const [jobs, setJobs] = useState(jobListings);
+const VendorReport = () => {
+  const [jobs, setJobs] = useState([]);
   const [jobToClose, setJobToClose] = useState(null);
+  const [jobCount,setJobCount] = useState(null);
+  const [serviceCount,setServiceCount] = useState(null);
+  const [Candidates,setCandidates] = useState(null);
+  const [totalApplications, setTotalApplications] = useState(null);
+  // Fetch job data from the backend
+  useEffect(() => {
+    axios.get("http://localhost:8086/summary") // Replace with your actual backend URL
+      .then((response) => {
+        
+        const { jobs } = response.data;
+        setJobCount(jobs.length);
+        setServiceCount(response.data.serviceCount);
+        setCandidates(response.data.candidatesHired);
+        setTotalApplications(response.data.noOfApplicants);
+        const formattedJobs = jobs.map(job => ({
+          id: job.jobId,
+          postedDate: job.postedDate,
+          title: job.jobTitle,
+          applicants: Math.floor(Math.random() * 100), // Simulating applicants count
+          status: job.active ? "Open" : "Closed",
+          active: job.active
+        }));
+        setJobs(formattedJobs);
+      })
+      .catch((error) => {
+        console.error("Error fetching jobs:", error);
+      });
+  }, []);
 
+  // Handle clicking "❌" to close a job
   const handleCloseJob = (jobId) => {
     setJobToClose(jobId);
   };
 
+  // Send update to backend and update state
   const confirmCloseJob = () => {
-    setJobs(jobs.map(job =>
-      job.id === jobToClose ? { ...job, status: "Closed" } : job
-    ));
-    setJobToClose(null);
+    if (jobToClose !== null) {
+      axios.put(`http://localhost:8086/jobs/${jobToClose}/close`) // Replace with your actual backend URL
+        .then(() => {
+          setJobs(jobs.map(job =>
+            job.id === jobToClose ? { ...job, status: "Closed", active: false } : job
+          ));
+          setJobToClose(null);
+        })
+        .catch(error => {
+          console.error("Error updating job status:", error);
+        });
+    }
   };
 
   return (
@@ -23,15 +62,15 @@ const VendorReport = ({ totalJobs, totalServices, hiredCandidates, totalApplicat
 
       <div className="statistics">
         <div className="stat-card">
-          <h2>{totalJobs}</h2>
+          <h2>{jobCount}</h2>
           <p>Total Jobs Posted</p>
         </div>
         <div className="stat-card">
-          <h2>{totalServices}</h2>
+          <h2>{serviceCount}</h2>
           <p>Total Services Posted</p>
         </div>
         <div className="stat-card">
-          <h2>{hiredCandidates}</h2>
+          <h2>{Candidates}</h2>
           <p>Candidates Hired</p>
         </div>
         <div className="stat-card">
@@ -62,7 +101,7 @@ const VendorReport = ({ totalJobs, totalServices, hiredCandidates, totalApplicat
                   <td>{job.applicants}</td>
                   <td>
                     {job.status}{" "}
-                    {job.status === "Open" && (
+                    {job.active && (
                       <button className="Job-Confirmation-close-icon" onClick={() => handleCloseJob(job.id)}>❌</button>
                     )}
                   </td>
@@ -89,22 +128,6 @@ const VendorReport = ({ totalJobs, totalServices, hiredCandidates, totalApplicat
       )}
     </div>
   );
-};
-
-VendorReport.propTypes = {
-  totalJobs: PropTypes.number.isRequired,
-  totalServices: PropTypes.number.isRequired,
-  hiredCandidates: PropTypes.number.isRequired,
-  totalApplications: PropTypes.number.isRequired,
-  jobListings: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      postedDate: PropTypes.string.isRequired,
-      title: PropTypes.string.isRequired,
-      applicants: PropTypes.number.isRequired,
-      status: PropTypes.string.isRequired,
-    })
-  ).isRequired,
 };
 
 export default VendorReport;
