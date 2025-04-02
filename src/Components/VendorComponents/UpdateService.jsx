@@ -71,7 +71,6 @@ const UpdateService = () => {
       ...formData,
       charges: parseFloat(formData.charges) || originalData.charges // Ensure charges is a number
     };
-    console.log(updatedService);
 
     try {
       await axios.put(`http://localhost:8086/updateService`, updatedService, {
@@ -81,9 +80,13 @@ const UpdateService = () => {
       alert("Service Updated Successfully!");
 
       // ✅ Refresh the service list after update
-      setServices(services.map(service => (service.id === selectedServiceId ? updatedService : service)));
-      setOriginalData(updatedService);
+      setServices(services.map(service => (service.id.toString() === selectedServiceId ? updatedService : service)));
+
+      // ✅ Reset form and dropdown after update
+      setSelectedServiceId("");
+      setOriginalData({});
       setFormData({});
+
     } catch (error) {
       console.error("Error updating service:", error);
       alert("Failed to update service.");

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./AddJob.css";
-import axios from "axios"; 
+import axios from "axios";
 
 const Addjob = () => {
     const [formData, setFormData] = useState({
@@ -42,11 +42,27 @@ const Addjob = () => {
 
         try {
             const response = await axios.post("http://localhost:8086/jobs/add", formattedData, {
-                headers: { "Content-Type": "application/json" }, // ✅ Send JSON, not FormData
+                headers: { "Content-Type": "application/json" },
             });
 
             console.log("Success:", response.data);
             alert("Job added successfully!");
+
+            // ✅ Reset form data to empty after successful submission
+            setFormData({
+                jobImage: "",
+                jobTitle: "",
+                jobDescription: "",
+                vacancies: "",
+                salary: "",
+                location: "",
+                experience: "",
+                education: "",
+                skills: "",
+                accommodations: "",
+                jobType: ""
+            });
+
         } catch (error) {
             console.error("Error:", error);
             alert("Failed to add job.");
@@ -58,38 +74,39 @@ const Addjob = () => {
             <div className="Addjob-container">
                 <h2 className="Addjob-heading">Job Posting</h2>
                 <form className="Addjob-form" onSubmit={handleSubmit}>
+
                     <label className="Addjob-label">Job Image URL</label>
-                    <input className="Addjob-input" type="text" name="jobImage" onChange={handleChange} placeholder="Enter image URL"/>
+                    <input className="Addjob-input" type="text" name="jobImage" value={formData.jobImage} onChange={handleChange} placeholder="Enter image URL" />
 
                     <label className="Addjob-label">Job Title</label>
-                    <input className="Addjob-input" type="text" name="jobTitle" onChange={handleChange} required />
+                    <input className="Addjob-input" type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange} required />
 
                     <label className="Addjob-label">Job Type</label>
-                    <input className="Addjob-input" type="text" name="jobType" onChange={handleChange} required />
+                    <input className="Addjob-input" type="text" name="jobType" value={formData.jobType} onChange={handleChange} required />
 
                     <label className="Addjob-label">Job Description</label>
-                    <textarea className="Addjob-textarea" name="jobDescription" onChange={handleChange} required></textarea>
+                    <textarea className="Addjob-textarea" name="jobDescription" value={formData.jobDescription} onChange={handleChange} required></textarea>
 
                     <label className="Addjob-label">Vacancies</label>
-                    <input className="Addjob-input" type="number" name="vacancies" onChange={handleChange} required />
+                    <input className="Addjob-input" type="number" name="vacancies" value={formData.vacancies} onChange={handleChange} required />
 
                     <label className="Addjob-label">Salary</label>
-                    <input className="Addjob-input" type="text" name="salary" onChange={handleChange} required />
+                    <input className="Addjob-input" type="text" name="salary" value={formData.salary} onChange={handleChange} required />
 
                     <label className="Addjob-label">Location</label>
-                    <input className="Addjob-input" type="text" name="location" onChange={handleChange} required />
+                    <input className="Addjob-input" type="text" name="location" value={formData.location} onChange={handleChange} required />
 
                     <label className="Addjob-label">Experience</label>
-                    <input className="Addjob-input" type="text" name="experience" onChange={handleChange} required />
+                    <input className="Addjob-input" type="text" name="experience" value={formData.experience} onChange={handleChange} required />
 
                     <label className="Addjob-label">Education</label>
-                    <input className="Addjob-input" type="text" name="education" onChange={handleChange} required />
+                    <input className="Addjob-input" type="text" name="education" value={formData.education} onChange={handleChange} required />
 
                     <label className="Addjob-label">Skills (comma-separated)</label>
-                    <input className="Addjob-input" type="text" name="skills" onChange={handleChange} placeholder="e.g. Java, React, SQL" required />
+                    <input className="Addjob-input" type="text" name="skills" value={formData.skills} onChange={handleChange} placeholder="e.g. Java, React, SQL" required />
 
                     <label className="Addjob-label">Accommodations (comma-separated)</label>
-                    <input className="Addjob-input" type="text" name="accommodations" onChange={handleChange} placeholder="e.g. Food, Transport"/>
+                    <input className="Addjob-input" type="text" name="accommodations" value={formData.accommodations} onChange={handleChange} placeholder="e.g. Food, Transport" />
 
                     <button type="submit" className="Addjob-button">Submit</button>
                 </form>

@@ -59,7 +59,7 @@ const UpdateJob = () => {
 
     // ✅ Merge updated fields with original data
     const updatedJob = { ...originalData, ...formData };
-    console.log(updatedJob);
+
     try {
       await axios.put(`http://localhost:8086/updateJob`, updatedJob, {
         headers: { "Content-Type": "application/json" }
@@ -68,9 +68,13 @@ const UpdateJob = () => {
       alert("Job Updated Successfully!");
 
       // ✅ Refresh the job list after update
-      setJobs(jobs.map(job => (job.jobId === selectedJobId ? updatedJob : job)));
-      setOriginalData(updatedJob);
+      setJobs(jobs.map(job => (job.jobId.toString() === selectedJobId ? updatedJob : job)));
+
+      // ✅ Reset form and dropdown after update
+      setSelectedJobId("");
+      setOriginalData({});
       setFormData({});
+
     } catch (error) {
       console.error("Error updating job:", error);
       alert("Failed to update job.");
@@ -93,7 +97,6 @@ const UpdateJob = () => {
 
         {selectedJobId && originalData.jobTitle && (
           <form className="UpdateJob-form" onSubmit={handleSubmit}>
-           
             <label className="UpdateJob-label">Job Description</label>
             <textarea
               className="UpdateJob-textarea"
@@ -102,7 +105,6 @@ const UpdateJob = () => {
               onChange={handleChange}
               required
             ></textarea>
-
 
             <label className="UpdateJob-label">Vacancies</label>
             <input

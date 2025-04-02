@@ -6,7 +6,7 @@ const AddService = () => {
   const [formData, setFormData] = useState({
     image: "", // Default empty string for image URL
     serviceType: "",
-    location: "", // Default selected location
+    location: "", // Default empty, requires user to select
     charges: "",
     timing: "",
     description: "",
@@ -26,6 +26,11 @@ const AddService = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formData.location) {
+      alert("Please select a location.");
+      return;
+    }
+
     // Ensure a default image is set if none is provided
     const dataToSend = {
       ...formData,
@@ -39,6 +44,17 @@ const AddService = () => {
       });
       console.log("Success:", response.data);
       alert("Service added successfully!");
+
+      // ✅ Reset form fields after successful submission
+      setFormData({
+        image: "",
+        serviceType: "",
+        location: "", // Reset location to empty (forces user to select)
+        charges: "",
+        timing: "",
+        description: "",
+      });
+
     } catch (error) {
       console.error("Error:", error);
       alert("Failed to add service.");
@@ -50,27 +66,29 @@ const AddService = () => {
       <div className="AddService-container">
         <h2 className="AddService-heading">Add Service</h2>
         <form className="AddService-form" onSubmit={handleSubmit}>
+
           <label className="AddService-label">Service Image URL (Optional)</label>
-          <input className="AddService-input" type="text" name="image" onChange={handleChange} placeholder="Enter image URL" />
+          <input className="AddService-input" type="text" name="image" value={formData.image} onChange={handleChange} placeholder="Enter image URL" />
 
           <label className="AddService-label">Service Type</label>
-          <input className="AddService-input" type="text" name="serviceType" onChange={handleChange} required />
+          <input className="AddService-input" type="text" name="serviceType" value={formData.serviceType} onChange={handleChange} required />
 
           <label className="AddService-label">Location</label>
-          <select className="AddService-input" name="location" onChange={handleChange} required>
+          <select className="AddService-input" name="location" value={formData.location} onChange={handleChange} required>
+            <option value="">Select Location</option> {/* Placeholder option */}
             {locations.map((loc) => (
               <option key={loc} value={loc}>{loc}</option>
             ))}
           </select>
 
           <label className="AddService-label">Charges</label>
-          <input className="AddService-input" type="text" name="charges" onChange={handleChange} required />
+          <input className="AddService-input" type="text" name="charges" value={formData.charges} onChange={handleChange} required />
 
           <label className="AddService-label">Timing</label>
-          <input className="AddService-input" type="text" name="timing" onChange={handleChange} required />
+          <input className="AddService-input" type="text" name="timing" value={formData.timing} onChange={handleChange} required />
 
           <label className="AddService-label">Description</label>
-          <textarea className="AddService-input" name="description" onChange={handleChange} required />
+          <textarea className="AddService-input" name="description" value={formData.description} onChange={handleChange} required />
 
           <button type="submit" className="AddService-button">Submit</button>
         </form>
