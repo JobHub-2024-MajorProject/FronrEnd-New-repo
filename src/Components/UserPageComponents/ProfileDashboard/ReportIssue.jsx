@@ -40,6 +40,29 @@ const ReportIssue = () => {
       .then(
         (response) => {
           console.log("✅ Report sent to Admin:", response.status, response.text);
+
+          fetch('http://localhost:8086/userpage/issuereport', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username,
+              reportType: reportType || "N/A",
+              company: company || null,
+              issue: issue || "N/A",
+              description: description || "No description provided.",
+              otherIssue: otherIssue || "N/A",
+            }),
+          })
+          .then((backendResponse) => backendResponse.json())
+          .then((backendData) => {
+            console.log("✅ Report saved to the backend:", backendData);
+          })
+          .catch((backendError) => {
+            console.log("❌ Failed to save report to the backend:", backendError);
+          });
+
           emailjs
             .send(
               "service_pejj7lc",
